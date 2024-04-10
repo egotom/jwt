@@ -1,0 +1,38 @@
+###
+GET http://127.0.0.1:8080 
+
+###
+POST  http://127.0.0.1:8080/signup
+content-type: application/json
+
+{
+    "Email": "filehelper",
+    "Password": "dsfsdgsdg"
+}
+###
+POST  http://127.0.0.1:8080/login
+content-type: application/json
+
+{
+    "Email": "filehelper",
+    "Password": "dsfsdgsdg"
+}
+
+###
+GET http://127.0.0.1:8080/validate
+
+###
+POST  http://localhost:8080/wxmsg
+content-type: application/json
+
+{
+	"content": "你是谁？",
+	"createTime": 1697258201,
+	"displayFullContent": "",
+	"fromUser": "filehelper",
+	"msgId": 123,
+	"msgSequence": 799241484,
+	"signature": "<msgsource>\n\t<signature>v1_uyzNEKbY</signature>\n\t<tmp_node>\n\t\t<publisher-id></publisher-id>\n\t</tmp_node>\n</msgsource>\n",
+	"toUser": "wxid_ievhmifil5vf22",
+	"type": 1
+}

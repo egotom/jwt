@@ -1,0 +1,391 @@
+package gemini
+import "github.com/google/generative-ai-go/genai"
+import "google.golang.org/api/option"
+
+ctx := context.Background()
+client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
+if err != nil {
+  log.Fatal(err)
+}
+defer client.Close()
+// For text-only input, use the gemini-pro model
+model := client.GenerativeModel("gemini-pro")
+resp, err := model.GenerateContent(ctx, genai.Text("Write a story about a magic backpack."))
+if err != nil {
+  log.Fatal(err)
+}
+
+根据文本和图片输入生成文本（多模式）
+Gemini 提供了一个多模态模型 (gemini-pro-vision)，因此您可以同时输入文本和图片。请务必查看提示的图片要求。
+
+当提示输入同时包含文本和图片时，请将 gemini-pro-vision 模型与 GenerateContent 方法结合使用以生成文本输出：
+
+ctx := context.Background()
+// Access your API key as an environment variable (see "Set up your API key" above)
+client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+if err != nil {
+  log.Fatal(err)
+}
+defer client.Close()
+
+// For text-and-image input (multimodal), use the gemini-pro-vision model
+model := client.GenerativeModel("gemini-pro-vision")
+
+imgData1, err := os.ReadFile(pathToImage1)
+if err != nil {
+  log.Fatal(err)
+}
+
+imgData2, err := os.ReadFile(pathToImage1)
+if err != nil {
+  log.Fatal(err)
+}
+
+prompt := []genai.Part{
+  genai.ImageData("jpeg", imgData1),
+  genai.ImageData("jpeg", imgData2),
+  genai.Text("What's different between these two pictures?"),
+}
+resp, err := model.GenerateContent(ctx, prompt...)
+
+if err != nil {
+  log.Fatal(err)
+}
+
+构建多轮对话（聊天）
+借助 Gemini，您可以构建多轮自由对话。该 SDK 通过管理对话状态简化了流程，因此与 GenerateContent 不同，您无需自行存储对话历史记录。
+
+如需构建多轮对话（如聊天），请使用 gemini-pro 模型，并通过调用 StartChat() 来初始化聊天。然后，使用 SendMessage() 发送一条新的用户消息，系统还会将该消息和响应附加到聊天记录中。
+
+与对话内容关联的 role 有两个可能的选项：
+
+user：提供提示的角色。这是 SendMessage 调用的默认值。
+
+model：提供响应的角色。在使用现有 history 调用 StartChat() 时，可以使用此角色。
+
+ctx := context.Background()
+// Access your API key as an environment variable (see "Set up your API key" above)
+client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+if err != nil {
+  log.Fatal(err)
+}
+defer client.Close()
+
+// For text-only input, use the gemini-pro model
+model := client.GenerativeModel("gemini-pro")
+// Initialize the chat
+cs := model.StartChat()
+cs.History = []*genai.Content{
+  &genai.Content{
+    Parts: []genai.Part{
+      genai.Text("Hello, I have 2 dogs in my house."),
+    },
+    Role: "user",
+  },
+  &genai.Content{
+    Parts: []genai.Part{
+      genai.Text("Great to meet you. What would you like to know?"),
+    },
+    Role: "model",
+  },
+}
+
+resp, err := cs.SendMessage(ctx, genai.Text("How many paws are in my house?"))
+if err != nil {
+  log.Fatal(err)
+}
+
+使用流式传输实现更快速的互动
+默认情况下，模型会在完成整个生成过程后返回响应。通过不等待整个结果，而是使用流式传输来处理部分结果，您可以实现更快的互动。
+
+以下示例展示了如何使用 GenerateContentStream 方法实现流式传输，以根据文本和图片输入提示生成文本。
+ctx := context.Background()
+// Access your API key as an environment variable (see "Set up your API key" above)
+client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+if err != nil {
+  log.Fatal(err)
+}
+defer client.Close()
+
+// For text-and-image input (multimodal), use the gemini-pro-vision model
+model := client.GenerativeModel("gemini-pro-vision")
+
+imageBytes, err := os.ReadFile(pathToImage)
+
+img := genai.ImageData("jpeg", imageBytes)
+prompt := genai.Text("Tell me a story about this animal")
+iter := model.GenerateContentStream(ctx, img, prompt)
+
+for {
+  resp, err := iter.Next()
+  if err == iterator.Done {
+    break
+  }
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  // ... print resp
+}
+
+实现高级用例
+本快速入门的上一部分中介绍的常见用例可帮助您熟悉 Gemini API。本部分介绍了一些可能被视为更高级的用例。
+
+使用嵌入
+嵌入是一种用于将信息表示为数组中的浮点数列表的技术。借助 Gemini，您能够以向量形式表示文本（字词、句子和文本块），从而更轻松地比较和对比嵌入。例如，主题或情感相似的两个文本应该具有相似的嵌入，可以通过余弦相似度等数学比较技术来识别。
+
+将 embedding-001 模型与 EmbedContent 方法（或 BatchEmbedContent 方法）结合使用以生成嵌入。以下示例针对单个字符串生成嵌入：
+
+ctx := context.Background()
+// Access your API key as an environment variable (see "Set up your API key" above)
+client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+if err != nil {
+  log.Fatal(err)
+}
+defer client.Close()
+em := client.EmbeddingModel("embedding-001")
+res, err := em.EmbedContent(ctx, genai.Text("The quick brown fox jumps over the lazy dog."))
+
+if err != nil {
+  panic(err)
+}
+fmt.Println(res.Embedding.Values)
+
+计算令牌数
+使用长提示时，在向模型发送任何内容之前统计令牌数可能很有用。以下示例展示了如何针对各种用例使用 CountTokens()：
+
+
+// For text-only input
+text := "Parrots can be green and live a long time."
+resp, err := model.CountTokens(ctx, genai.Text(text))
+if err != nil {
+  log.Fatal(err)
+}
+fmt.Println(resp.TotalTokens)
+
+// For text-and-image input (multimodal)
+text := "Parrots can be green and live a long time."
+imageBytes, err := os.ReadFile(pathToImage)
+if err != nil {
+  log.Fatal(err)
+}
+
+resp, err := model.CountTokens(
+    ctx,
+    genai.Text(text),
+    genai.ImageData("png", imageBytes))
+  if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(resp.TotalTokens)
+用于控制内容生成的选项
+您可以通过配置模型参数和使用安全设置来控制内容生成。
+
+配置模型参数
+您发送到模型的每个提示都包含用于控制模型如何生成回答的参数值。对于不同的参数值，模型会生成不同的结果。详细了解模型参数。配置将在模型实例的生命周期内保持有效。
+
+
+// ...
+
+model := client.GenerativeModel("MODEL_NAME")
+
+// Configure model parameters by invoking Set* methods on the model.
+model.SetTemperature(0.9)
+model.SetTopK(1)
+
+// ...
+使用安全设置
+您可以使用安全设置来调整收到可能被视为有害的响应的可能性。默认情况下，安全设置会在所有维度上屏蔽概率中等和/或高可能属于不安全内容的内容。详细了解安全设置。
+
+下面是设置一项安全设置的具体方法：
+
+
+// ...
+
+model := client.GenerativeModel("MODEL_NAME")
+
+model.SafetySettings = []*genai.SafetySetting{
+  {
+    Category:  genai.HarmCategoryHarassment,
+    Threshold: genai.HarmBlockOnlyHigh,
+  },
+}
+
+// ...
+您还可以设定多个安全设置：
+
+
+// ...
+
+model := client.GenerativeModel("MODEL_NAME")
+
+model.SafetySettings = []*genai.SafetySetting{
+  {
+    Category:  genai.HarmCategoryHarassment,
+    Threshold: genai.HarmBlockOnlyHigh,
+  },
+  {
+    Category:  genai.HarmCategoryHateSpeech,
+    Threshold: genai.HarmBlockMediumAndAbove,
+  },
+}
+
+
+
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$API_KEY \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+      "contents": [{
+        "parts":[{
+          "text": "Write a story about a magic backpack."}]}]}' 2> /dev/null
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Once upon a time, in a small town nestled at the foot of towering mountains, there lived a young girl named Lily. Lily was an adventurous and imaginative child, always dreaming of exploring the world beyond her home. One day, while wandering through the attic of her grandmother's house, she stumbled upon a dusty old backpack tucked away in a forgotten corner. Intrigued, Lily opened the backpack and discovered that it was an enchanted one. Little did she know that this magical backpack would change her life forever.\n\nAs Lily touched the backpack, it shimmered with an otherworldly light. She reached inside and pulled out a map that seemed to shift and change before her eyes, revealing hidden paths and distant lands. Curiosity tugged at her heart, and without hesitation, Lily shouldered the backpack and embarked on her first adventure.\n\nWith each step she took, the backpack adjusted to her needs. When the path grew treacherous, the backpack transformed into sturdy hiking boots, providing her with the confidence to navigate rocky terrains. When a sudden rainstorm poured down, the backpack transformed into a cozy shelter, shielding her from the elements.\n\nAs days turned into weeks, Lily's journey took her through lush forests, across treacherous rivers, and to the summits of towering mountains. The backpack became her loyal companion, guiding her along the way, offering comfort, protection, and inspiration.\n\nAmong her many adventures, Lily encountered a lost fawn that she gently carried in the backpack's transformed cradle. She helped a friendly giant navigate a dense fog by using the backpack's built-in compass. And when faced with a raging river, the backpack magically transformed into a sturdy raft, transporting her safely to the other side.\n\nThrough her travels, Lily discovered the true power of the magic backpack. It wasn't just a magical object but a reflection of her own boundless imagination and tenacity. She realized that the world was hers to explore, and the backpack was a tool to help her reach her full potential.\n\nAs Lily returned home, enriched by her adventures and brimming with stories, she decided to share the magic of the backpack with others. She organized a special adventure club, where children could embark on their own extraordinary journeys using the backpack's transformative powers. Together, they explored hidden worlds, learned valuable lessons, and formed lifelong friendships.\n\nAnd so, the legend of the magic backpack lived on, passed down from generation to generation. It became a reminder that even the simplest objects can hold extraordinary power when combined with imagination, courage, and a sprinkle of magic."
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "safetyRatings": [
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE"
+        },
+        {
+          "category": "HARM_CATEGORY_HATE_SPEECH",
+          "probability": "NEGLIGIBLE"
+        },
+        {
+          "category": "HARM_CATEGORY_HARASSMENT",
+          "probability": "NEGLIGIBLE"
+        },
+        {
+          "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+          "probability": "NEGLIGIBLE"
+        }
+      ]
+    }
+  ],
+  "promptFeedback": {
+    "safetyRatings": [
+      {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "probability": "NEGLIGIBLE"
+      },
+      {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "probability": "NEGLIGIBLE"
+      },
+      {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "probability": "NEGLIGIBLE"
+      },
+      {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "probability": "NEGLIGIBLE"
+      }
+    ]
+  }
+}
+
+
+Text-and-image input	  
+curl -o image.jpg https://storage.googleapis.com/generativeai-downloads/images/scones.jpg	  
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${API_KEY} \
+        -H 'Content-Type: application/json' \
+        -d @request.json 2> /dev/null | grep "text"
+
+
+
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$API_KEY \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+      "contents": [
+        {"role":"user",
+         "parts":[{
+           "text": "Write the first line of a story about a magic backpack."}]},
+        {"role": "model",
+         "parts":[{
+           "text": "In the bustling city of Meadow brook, lived a young girl named Sophie. She was a bright and curious soul with an imaginative mind."}]},
+        {"role": "user",
+         "parts":[{
+           "text": "Can you set it in a quiet village in 1600s France?"}]},
+      ]
+    }' 2> /dev/null | grep "text"
+	
+	
+	
+	
+	curl https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:GenerateContent?key=${API_KEY} \
+    -H 'Content-Type: application/json' \
+    -d @<(echo'{
+          "contents":[
+            { "parts":[
+                {"text": "Do these look store-bought or homemade?"},
+                { "inlineData": {
+                    "mimeType": "image/png",
+                    "data": "'$(base64 -w0 cookie.png)'"
+                  }
+                }
+              ]
+            }
+          ]
+         }')
+		 
+curl https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=$API_KEY \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{ "contents":[
+      { "parts":[{"text": "Write a story about a magic backpack"}]}
+    ]
+}'
+		 
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$API_KEY \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+      "contents": [
+        {"role":"user",
+         "parts":[{
+           "text": "Pretend you're a snowman and stay in character for each
+        {"role": "model",
+            response."}]},
+         "parts":[{
+           "text": "Hello! It's so cold! Isn't that great?"}]},
+        {"role": "user",
+         "parts":[{
+           "text": "What\'s your favorite season of the year?"}]},
+       ]
+    }' 2> /dev/null | grep "text"
+# response example:
+"text": "Winter, of course!"	 
+	
+curl https://generativelanguage.googleapis.com/v1/models/gemini-pro:streamGenerateContent?key=${API_KEY} \
+    -H 'Content-Type: application/json' \
+    --no-buffer \
+    -d '{ "contents":[
+            {"role": "user",
+              "parts":[{"text": "Write a story about a magic backpack."}]
+            }
+          ]
+        }' > response.json
+	
+	
+Count tokens
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:countTokens?key=$API_KEY \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts":[{
+        "text": "Write a story about a magic backpack."}]}]}' > response.json
+{
+  "totalTokens": 8
+}
