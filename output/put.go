@@ -2,11 +2,12 @@ package output
 
 import (
 	"io"
+	"os"
+	"log"
 	"fmt"
 	"time"
 	"bytes"
 	"errors"
-	
 	"strings"
 	"net/http"
 	"encoding/json"
@@ -30,6 +31,18 @@ func Log2DB(to, msg, role string, vendor uint8){
 		Msg: msg,
 	}
 	initializers.DB.Create(&v)
+}
+
+
+func Log2file(text string){
+	f, err := os.OpenFile("msgLog.txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	
+	log.SetOutput(f)
+	log.Println(text,"\n")
 }
 
 func Promote(user string, id string) error {

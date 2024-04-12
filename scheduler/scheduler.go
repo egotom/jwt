@@ -39,7 +39,34 @@ func Scheduler() {
 		return
 	}
 	fmt.Println("job has a unique id: ",j.ID())
+
+	// _, _ = s.NewJob(
+	// 	gocron.DurationJob(
+	// 		time.Second*3,
+	// 	),
+	// 	gocron.NewTask(
+	// 		func() {
+	// 			fmt.Println("gocron.DurationJob 3s: ",time.Now())
+	// 		},
+	// 	),
+	// )
+
+	// _, _ = s.NewJob(
+	// 	gocron.MonthlyJob(1,
+	// 		gocron.NewDaysOfTheMonth(12),
+	// 		gocron.NewAtTimes(
+	// 			gocron.NewAtTime(10, 30, 0),
+	// 		),
+	// 	),
+	// 	gocron.NewTask(
+	// 		func() {
+	// 			fmt.Println("gocron.MonthlyJob: ",time.Now())
+	// 		},
+	// 	),
+	// )
+	
 	s.Start()
+	fmt.Println("job number: ", len(s.Jobs()))
 	// when you're done, shut it down
 	// err = s.Shutdown()
 	// if err != nil {
@@ -49,6 +76,7 @@ func Scheduler() {
 	UserInfo()
 	WxRegister()
 	LoadCache()
+	CRURegister("")
 }
 
 func HookSyncMsg(){

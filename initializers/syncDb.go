@@ -7,4 +7,5 @@ func SyncDb() {
 	DB.AutoMigrate(&models.Ticket{})
 	DB.AutoMigrate(&models.Promotion{})
 	DB.AutoMigrate(&models.Context{})
+	DB.AutoMigrate(&models.ChatRoomUser{})
 }

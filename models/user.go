@@ -30,4 +30,3 @@ type WxUser struct{
 	Mobile			string 	`json:"mobile"`
 	Avatar 			string 	`json:"headImage"`
 }
-

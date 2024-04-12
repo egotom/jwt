@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"os"
 	"fmt"
 	"regexp"
 	// "time"
@@ -15,19 +16,28 @@ import (
 )
 
 func WxMsg(c *gin.Context){
+	// str, _ := c.GetRawData()
+	// go output.Log2file(string(str))
 	var body models.WxMsg
 	if err:=c.Bind(&body); err !=nil{
 		c.JSON(http.StatusBadRequest, gin.H{"error":"参数错误！"})
 		fmt.Println(err)
 		return 
 	}
-	if body.Type == 1{
-		fmt.Println("content: ",body.Content)
-		fmt.Println("\n\nfrom: ",body.FromUser)
+	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
+	if (body.Type == 1){
+		fmt.Println("\n\ncontent: ",body.Content)
+		fmt.Println("from: ",body.FromUser)
 		fmt.Println("to: ",body.ToUser)
 		fmt.Println("type: ",body.Type)
-		fmt.Println("\n\n\n")
+		fmt.Println("\n\n")
 	}
+
+	if (body.Type == 10000){
+		scheduler.CRURegister(body.FromUser)
+		return
+	}
+
 	to:="filehelper"
 	if body.ToUser != "filehelper"{
 		to=body.FromUser
@@ -39,7 +49,7 @@ func WxMsg(c *gin.Context){
 	if !exist {
 		scheduler.WxRegister()
 		if len(body.Content)>0 && !strings.Contains(body.FromUser,"@"){
-			output.Reply(to, "您好，我可以回答问题、提供信息、与您聊天和提供娱乐。如果您需要帮助，请随时告诉我。")
+			output.Reply(to, os.Getenv("GREET"))
 		}
 		// time.Sleep(5*time.Second)
 		return

@@ -19,6 +19,26 @@
 CREATE DATABASE IF NOT EXISTS `jwtgo` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `jwtgo`;
 
+-- 导出  表 jwtgo.chat_room_users 结构
+CREATE TABLE IF NOT EXISTS `chat_room_users` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `wxid` varchar(50) NOT NULL,
+  `custom_account` varchar(100) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `nickname` varchar(100) DEFAULT NULL,
+  `invite_at` longtext DEFAULT NULL,
+  `room` longtext DEFAULT NULL,
+  `is_menber` tinyint(1) DEFAULT 0,
+  `is_friend` tinyint(1) DEFAULT 0,
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `wxid` (`wxid`),
+  KEY `idx_chat_room_users_wxid` (`wxid`)
+) ENGINE=InnoDB AUTO_INCREMENT=13935 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 数据导出被取消选择。
+
 -- 导出  表 jwtgo.contexts 结构
 CREATE TABLE IF NOT EXISTS `contexts` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -29,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `contexts` (
   `created_at` datetime(3) DEFAULT current_timestamp(3),
   PRIMARY KEY (`id`),
   KEY `idx_contexts_wxid` (`wxid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2880 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3244 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- 数据导出被取消选择。
 
@@ -62,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `tickets` (
 -- 导出  表 jwtgo.users 结构
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `ticket` bigint(20) DEFAULT 3000,
+  `ticket` bigint(20) DEFAULT 5000,
   `is_verified` tinyint(1) DEFAULT 0,
   `is_active` tinyint(1) DEFAULT 0,
   `account` varchar(50) DEFAULT NULL,
@@ -75,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` datetime(3) DEFAULT current_timestamp(3),
   PRIMARY KEY (`id`),
   KEY `idx_users_wxid` (`wxid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1845 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1996 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- 数据导出被取消选择。
 
