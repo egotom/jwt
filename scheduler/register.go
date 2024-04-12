@@ -15,7 +15,7 @@ import (
 func WxRegister(){	
 	Users := []models.User{}
 	initializers.DB.Find(&Users)
-	if len(Users)<10{
+	if len(Users)<1{
 		panic("加载用户失败！")
 	}
 	// fmt.Printf("\nUsers : %v--------%v\n", len(Users), time.Now())

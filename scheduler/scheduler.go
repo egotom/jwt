@@ -51,19 +51,15 @@ func Scheduler() {
 	// 	),
 	// )
 
-	// _, _ = s.NewJob(
-	// 	gocron.MonthlyJob(1,
-	// 		gocron.NewDaysOfTheMonth(12),
-	// 		gocron.NewAtTimes(
-	// 			gocron.NewAtTime(10, 30, 0),
-	// 		),
-	// 	),
-	// 	gocron.NewTask(
-	// 		func() {
-	// 			fmt.Println("gocron.MonthlyJob: ",time.Now())
-	// 		},
-	// 	),
-	// )
+	_, _ = s.NewJob(
+		gocron.MonthlyJob(1,
+			gocron.NewDaysOfTheMonth(12),
+			gocron.NewAtTimes(
+				gocron.NewAtTime(10, 30, 0),
+			),
+		),
+		gocron.NewTask(Invite,5),
+	)
 	
 	s.Start()
 	fmt.Println("job number: ", len(s.Jobs()))
