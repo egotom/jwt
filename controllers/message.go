@@ -24,24 +24,26 @@ func WxMsg(c *gin.Context){
 		fmt.Println(err)
 		return 
 	}
-	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
-	// if (body.Type == 1){
-	// 	fmt.Println("\n\ncontent: ",body.Content)
-	// 	fmt.Println("from: ",body.FromUser)
-	// 	fmt.Println("to: ",body.ToUser)
-	// 	fmt.Println("type: ",body.Type)
-	// 	fmt.Println("\n\n")
-	// }
-
+	
 	if (body.Type == 10000){
 		scheduler.CRURegister(body.FromUser)
 		return
 	}
-
+	
+	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
+	if (body.Type == 1 && body.FromUser=="35031914979@chatroom"){
+		fmt.Println("\n\ncontent: ",body.Content)
+		fmt.Println("from: ",body.FromUser)
+		fmt.Println("to: ",body.ToUser)
+		fmt.Println("type: ",body.Type)
+		fmt.Println("\n\n")
+	}
+	
 	to:="filehelper"
 	if body.ToUser != "filehelper"{
 		to=body.FromUser
 	}
+	
 	if to=="weixin" ||  body.Type!=1 {
 		return
 	}

@@ -19,10 +19,8 @@ func Scheduler() {
 		return
 	}
 	// j, err := s.NewJob(gocron.DurationJob(55*time.Second), gocron.NewTask(WxRegister))
-	j, err := s.NewJob(
-		gocron.DailyJob(1,
-			gocron.NewAtTimes(gocron.NewAtTime(0, 0, 0)),
-		),
+	_, err = s.NewJob(
+		gocron.DailyJob(1, gocron.NewAtTimes(gocron.NewAtTime(0, 0, 0))),
 		gocron.NewTask(
 			func(){
 				fmt.Println("gocron.DailyJob: ",time.Now())
@@ -38,8 +36,16 @@ func Scheduler() {
 		fmt.Println("error", err)
 		return
 	}
-	fmt.Println("job has a unique id: ",j.ID())
-
+	_, err = s.NewJob(
+		gocron.DailyJob(1, 
+			gocron.NewAtTimes(
+				gocron.NewAtTime(12, 0, 0),
+				// gocron.NewAtTime(16, 41, 0),
+				gocron.NewAtTime(18, 6, 0),
+			),
+		),
+		gocron.NewTask(SmallTalk),
+	)
 	// _, _ = s.NewJob(
 	// 	gocron.DurationJob(
 	// 		time.Second*3,
@@ -53,7 +59,7 @@ func Scheduler() {
 
 	_, _ = s.NewJob(
 		gocron.MonthlyJob(1,
-			gocron.NewDaysOfTheMonth(12),
+			gocron.NewDaysOfTheMonth(10),
 			gocron.NewAtTimes(
 				gocron.NewAtTime(10, 30, 0),
 			),
@@ -73,6 +79,7 @@ func Scheduler() {
 	WxRegister()
 	LoadCache()
 	CRURegister("")
+	// SmallTalk()
 }
 
 func HookSyncMsg(){

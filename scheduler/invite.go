@@ -17,7 +17,6 @@ func Invite(n int){
 		fmt.Println("Invite(), 加载用户失败！")
 	}
 	for i,u := range(Users){
-		fmt.Println(i,"==============================")
 		if i >= n{
 			break
 		}
