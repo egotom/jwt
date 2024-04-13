@@ -39,7 +39,7 @@ func Scheduler() {
 	_, err = s.NewJob(
 		gocron.DailyJob(1, 
 			gocron.NewAtTimes(
-				gocron.NewAtTime(12, 0, 0),
+				// gocron.NewAtTime(12, 0, 0),
 				// gocron.NewAtTime(16, 41, 0),
 				gocron.NewAtTime(18, 6, 0),
 			),

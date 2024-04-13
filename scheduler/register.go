@@ -27,9 +27,9 @@ func WxRegister(){
 	}
 
 	for _, v := range(wxUsers){
-		if strings.Contains(v.Wxid,"@openim") {
-			continue
-		}
+		// if strings.Contains(v.Wxid,"@openim") {
+		// 	continue
+		// }
 		if !WSIn(Users,v.Wxid) {
 			nu:=models.User{
 				Wxid:v.Wxid,

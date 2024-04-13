@@ -6,9 +6,7 @@ import (
 	"jwt/models"
 	"log"
 	"net/http"
-	"os"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -26,7 +24,7 @@ func RequireAuth(c *gin.Context){
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return  []byte(os.Getenv("SECRET")), nil
+		return  []byte(initializers.Config.Secret), nil
 	})
 	if err != nil {
 		log.Fatal(err,"-----------------",tokenString)

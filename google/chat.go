@@ -2,7 +2,6 @@ package google
 
 import (
 	"io"
-	"os"
 	"fmt"
 	"time"
 	"bytes"
@@ -12,8 +11,9 @@ import (
 	"jwt/models"
 	"jwt/output"
 	"jwt/openai"
-	"jwt/scheduler"
 	"encoding/json"
+	"jwt/scheduler"
+	"jwt/initializers"
 )
 
 func ChatGemini(to, msg string){
@@ -43,8 +43,8 @@ func ChatGemini(to, msg string){
 	if err!=nil{
 		fmt.Println(err)
 	}
-	uriGemini:=fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=%s", os.Getenv("GEMINI_API_KEY"))
-	// uriGemini:=fmt.Sprintf("https://deluxe-trifle-53ce77.netlify.app/v1/models/gemini-pro:generateContent?key=%s",os.Getenv("GEMINI_API_KEY"))
+	uriGemini:=fmt.Sprint("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=", initializers.Config.APIKey["Gemini"])
+	// uriGemini:=fmt.Sprint("https://deluxe-trifle-53ce77.netlify.app/v1/models/gemini-pro:generateContent?key=%s", initializers.Config.APIKey["Gemini"])
 	r, err := http.NewRequest("POST",uriGemini, bytes.NewBuffer(m))
 	if err != nil {
 		panic(err)
@@ -56,7 +56,7 @@ func ChatGemini(to, msg string){
 		Transport: &http.Transport {
 			Proxy: http.ProxyURL(&url.URL{
 				Scheme: "http",
-				Host: os.Getenv("HTTP_PROXY"),
+				Host: initializers.Config.HTTPProxy,
 			}),
 		},
 	}

@@ -3,5 +3,8 @@
 go 1.22
 
 go build 
-copy example.env .env
+
+copy example.yaml config.yaml
+
+
 ./jwt

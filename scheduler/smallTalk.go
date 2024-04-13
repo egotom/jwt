@@ -1,20 +1,19 @@
 package scheduler
 
 import (
-	"os"
 	"fmt"
 	"time"
 	"bytes"
 	"strings"
 	"net/http"
-	"jwt/models"
 	"math/rand"
+	"jwt/models"
 	"encoding/json"	
+	"jwt/initializers"
 )
 
 func SmallTalk(){
-	str:=os.Getenv("PROMPTS")
-	prompts:=strings.Split(str,"^")
+	prompts:=initializers.Config.Prompts
 	client := &http.Client{Timeout: 5*time.Second}	
 	rs,_ := FetchWxUser()
 	if len(rs)<1{
@@ -24,9 +23,13 @@ func SmallTalk(){
 		if !strings.Contains(r.Wxid,"@chatroom") {
 			continue
 		}
+		prompt := prompts["@chatroom"]
+		if p,ok:=prompts[r.Wxid]; ok{
+			prompt=p
+		}
 		payload := models.WxMsg{
 			Type:1,
-			Content:`st @`+WxMe.Name+RandChoice(prompts),
+			Content:`st @`+WxMe.Name+RandChoice(prompt),
 			FromUser:r.Wxid,	//"35031914979@chatroom", //
 			ToUser:WxMe.Wxid,
 		}

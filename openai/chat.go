@@ -2,7 +2,6 @@ package openai
 
 import (
 	"io"
-	"os"
 	"fmt"
 	"time"
 	"bytes"
@@ -12,6 +11,7 @@ import (
 	"jwt/models"
 	"jwt/output"
 	"jwt/scheduler"
+	"jwt/initializers"
 )
 
 func ChatGPT(to, msg string){
@@ -32,20 +32,20 @@ func ChatGPT(to, msg string){
 	}
 	// fmt.Println(string(m))
 	r, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(m))
-	// OPuri := fmt.Sprintf("https://main--zingy-heliotrope-e35efb.netlify.app?key=%s", os.Getenv("OPENAI_API_KEY"))
+	// OPuri := fmt.Sprintf("https://main--zingy-heliotrope-e35efb.netlify.app?key=%s", initializers.Config.APIKey["OpenAI"])
 	// r, err := http.NewRequest("POST",OPuri, bytes.NewBuffer(m))
 	// r, err := http.NewRequest("POST", "https://sibylla.org", bytes.NewBuffer(m))
 	if err != nil {
 		panic(err)
 	}
 	r.Header.Add("Content-Type", "application/json")
-	r.Header.Add("Authorization", "Bearer " + os.Getenv("OPENAI_API_KEY"))
+	r.Header.Add("Authorization", "Bearer " + initializers.Config.APIKey["OpenAI"])
 	client:= &http.Client{
 		Timeout: 15*time.Second,
 		Transport: &http.Transport {
 			Proxy: http.ProxyURL(&url.URL{
 				Scheme: "http",
-				Host: os.Getenv("HTTP_PROXY"),
+				Host: initializers.Config.HTTPProxy,
 			}),
 		},
 	}

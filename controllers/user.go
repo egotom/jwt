@@ -4,9 +4,7 @@ import (
 	"jwt/initializers"
 	"jwt/models"
 	"net/http"
-	"os"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -75,7 +73,7 @@ func Login(c *gin.Context){
 		"exp":time.Now().Add(time.Hour * 24 *24*30).Unix(),
 	})
 
-	tokenString,err:=token.SignedString([]byte(os.Getenv("SECRET")))
+	tokenString,err:=token.SignedString([]byte(initializers.Config.Secret))
 	if err !=nil {
 		c.JSON(http.StatusBadRequest,gin.H{
 			"error":"生成 token 错误！",

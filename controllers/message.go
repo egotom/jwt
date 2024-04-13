@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"os"
 	"fmt"
 	"regexp"
 	// "time"
@@ -12,6 +11,7 @@ import (
 	"jwt/models"
 	"jwt/output"
 	"jwt/scheduler"	
+	"jwt/initializers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,10 +25,10 @@ func WxMsg(c *gin.Context){
 		return 
 	}
 	
-	if (body.Type == 10000){
-		scheduler.CRURegister(body.FromUser)
-		return
-	}
+	// if (body.Type == 10000){
+	// 	go scheduler.CRURegister(body.FromUser)
+	// 	return
+	// }
 	
 	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
 	if (body.Type == 1 && body.FromUser=="35031914979@chatroom"){
@@ -43,7 +43,7 @@ func WxMsg(c *gin.Context){
 	if body.ToUser != "filehelper"{
 		to=body.FromUser
 	}
-	
+
 	if to=="weixin" ||  body.Type!=1 {
 		return
 	}
@@ -51,7 +51,7 @@ func WxMsg(c *gin.Context){
 	if !exist {
 		scheduler.WxRegister()
 		if len(body.Content)>0 && !strings.Contains(body.FromUser,"@"){
-			output.Reply(to, os.Getenv("GREET"))
+			output.Reply(to, scheduler.RandChoice(initializers.Config.Greets))
 		}
 		// time.Sleep(5*time.Second)
 		return
