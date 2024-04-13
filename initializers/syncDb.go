@@ -8,4 +8,5 @@ func SyncDb() {
 	DB.AutoMigrate(&models.Promotion{})
 	DB.AutoMigrate(&models.Context{})
 	DB.AutoMigrate(&models.ChatRoomUser{})
+	DB.AutoMigrate(&models.Honey{})
 }

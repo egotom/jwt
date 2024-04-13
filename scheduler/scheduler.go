@@ -13,6 +13,13 @@ import (
 )
 
 func Scheduler() {
+	HookSyncMsg()
+	UserInfo()
+	WxRegister()
+	LoadCache()
+	CRURegister("")
+	// SmallTalk()
+
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		fmt.Println("error", err)
@@ -46,6 +53,7 @@ func Scheduler() {
 		),
 		gocron.NewTask(SmallTalk),
 	)
+	
 	// _, _ = s.NewJob(
 	// 	gocron.DurationJob(
 	// 		time.Second*3,
@@ -68,18 +76,12 @@ func Scheduler() {
 	)
 	
 	s.Start()
-	fmt.Println("job number: ", len(s.Jobs()))
+	fmt.Println("Start %d jobs. ", len(s.Jobs()))
 	// when you're done, shut it down
 	// err = s.Shutdown()
 	// if err != nil {
 	// 	fmt.Println("error", err)
 	// }
-	HookSyncMsg()
-	UserInfo()
-	WxRegister()
-	LoadCache()
-	CRURegister("")
-	// SmallTalk()
 }
 
 func HookSyncMsg(){

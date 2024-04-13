@@ -32,7 +32,7 @@ func SmallTalk(){
 		}
 		payload := models.WxMsg{
 			Type:1,
-			Content:`st @`+WxMe.Name+RandChoice(prompt),
+			Content:`st: @`+WxMe.Name+"-"+RandChoice(prompt),
 			FromUser:r.Wxid,	//"35031914979@chatroom", //
 			ToUser:WxMe.Wxid,
 		}
@@ -44,8 +44,8 @@ func SmallTalk(){
 		if err!=nil {
 			fmt.Println("SmallTalk ", err)
 		}
-		fmt.Printf("\nSamllTalk : %v------------%v\n", payload, time.Now())
-		time.Sleep(60*time.Second)
+		fmt.Printf("\nSamllTalk : %v------------%v\n", string(rb), time.Now())
+		time.Sleep(6*time.Second)
 	}
 }
 

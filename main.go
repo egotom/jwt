@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"jwt/controllers"
+	"github.com/gin-gonic/gin"
 	"jwt/initializers"
+	"jwt/controllers"
 	"jwt/middleware"
 	"jwt/scheduler"
-	"github.com/gin-gonic/gin"
+	// "jwt/output"
+	"fmt"
 )
 
 func init(){
@@ -17,6 +18,7 @@ func init(){
 
 func main() {
 	go scheduler.Scheduler()
+	// go output.Honey()
 	gin.SetMode(initializers.Config.GinMode)
 	r := gin.Default()
 	r.POST("/signup", controllers.Signup)
