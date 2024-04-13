@@ -27,6 +27,9 @@ func SmallTalk(){
 		if p,ok:=prompts[r.Wxid]; ok{
 			prompt=p
 		}
+		if len(prompt)<1 {
+			continue
+		}
 		payload := models.WxMsg{
 			Type:1,
 			Content:`st @`+WxMe.Name+RandChoice(prompt),
