@@ -26,12 +26,13 @@ func WxMsg(c *gin.Context){
 	}
 	
 	// if (body.Type == 10000){
+	//	风险，会触发微信服务器调用 
 	// 	go scheduler.CRURegister(body.FromUser)
 	// 	return
 	// }
 	
 	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
-	if (body.Type == 1 && body.FromUser=="35031914979@chatroom"){
+	if (body.Type == 1 ){
 		fmt.Println("\n\ncontent: ",body.Content)
 		fmt.Println("from: ",body.FromUser)
 		fmt.Println("to: ",body.ToUser)

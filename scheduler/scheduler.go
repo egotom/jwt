@@ -17,7 +17,7 @@ func Scheduler() {
 	UserInfo()
 	WxRegister()
 	LoadCache()
-	CRURegister("")
+	CRURegister("")		//危险，可以触发微信服务器调用
 	// SmallTalk()
 
 	s, err := gocron.NewScheduler()
@@ -76,7 +76,7 @@ func Scheduler() {
 	)
 	
 	s.Start()
-	fmt.Println("Start %d jobs. ", len(s.Jobs()))
+	fmt.Sprintf("Start %d jobs.\n ", len(s.Jobs()))
 	// when you're done, shut it down
 	// err = s.Shutdown()
 	// if err != nil {
