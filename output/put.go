@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"jwt/models"
 	"jwt/initializers"
-	
 )
 
 func Log2DB(to, msg, role string, vendor uint8){

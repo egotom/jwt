@@ -17,7 +17,7 @@ func Scheduler() {
 	UserInfo()
 	WxRegister()
 	LoadCache()
-	CRURegister("")		//危险，可以触发微信服务器调用
+	// CRURegister("")		//危险，可以触发微信服务器调用
 	// SmallTalk()
 
 	s, err := gocron.NewScheduler()

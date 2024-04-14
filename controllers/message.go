@@ -95,20 +95,22 @@ func CMDS(Content,to string, ticket int64) bool{
 
 	if strings.HasPrefix(Content, scheduler.WxMe.Name+"推荐码") {
 		id:= strings.Replace(Content,scheduler.WxMe.Name+"推荐码:", "", 1)
-		fmt.Println(id)
+		fmt.Println(Content,"--------------------------------------------")
 		var pm = models.Promotion{ID:id}
-		result := initializers.DB.Where("publisher != ?",to).First(&pm)
+		result := initializers.DB.Where("publisher != ?",to).First(&pm, id)
 		if result.RowsAffected == 0{
 			output.Reply(to, "该推荐码无效，请联系推荐者重新生成。")
 			Help(to)
 			return true
 		}
-		if strings.Contains(pm.Consumer, to) {
+		pmu := models.Promotion{}
+		result = initializers.DB.Where("consumer like ?","%"+to+"%").First(&pmu)
+		if result.RowsAffected > 0 {
 			output.Reply(to, "你已经使用过推荐码。")
 			Help(to)
 			return true
 		}
-		pm.Consumer=pm.Consumer+fmt.Sprintf("%s,",to)
+		pm.Consumer=fmt.Sprintf("%s,%s", pm.Consumer, to)
 		result = initializers.DB.Save(&pm)
 		if result.RowsAffected>0{
 			var pub = models.User{}
@@ -132,12 +134,12 @@ func CMDS(Content,to string, ticket int64) bool{
 
 	if Content== "额度" || Content== "余额"{
 		quota:=fmt.Sprintf("每天使用额度: %d Token\n今天剩余额度: %d Token", scheduler.Ticket[to][1], scheduler.Ticket[to][0])
-		output.Reply(to,quota)
+		output.Reply(to, quota)
 		return true
 	} 
 
 	if ticket < 0 {
-		output.Reply(to, "今日的免费额度已用完。推荐新用户获得每天300 token免费额度奖励。\n充值30元，每天限额加倍。联系微信: mtldswz_03。")
+		output.Reply(to, "今日的免费额度已用完。推荐新用户获得每天300 token免费额度奖励。\n充值30元，每天使用额度增加5000token。联系微信: mtldswz_03。")
 		Help(to)
 		if to == "wxid_ievhmifil5vf22"{
 			scheduler.Ticket[to] = []int64{5000, 5000}
@@ -148,7 +150,7 @@ func CMDS(Content,to string, ticket int64) bool{
 }
 
 func Help(to string){
-	msg:=fmt.Sprintf("发送\"?\"或\"帮助\":  显示本说明。\n\n发送\"推荐码\":  生成推荐码。被使用后, 你每天的使用额度可获得300 token 奖励。被推荐人充值可获得33%%的提成。\n\n使用推荐码: 请直接把别人分享给你的推荐码转发给 @%s，充值获得9折优惠。\n\n发送\"额度\"或\"余额\": 查询每天使用额度和当天剩余额度。\n\n充值或任何问题: 请联系微信: mtldswz_03", scheduler.WxMe.Name)
+	msg:=fmt.Sprintf("发送\"?\"或\"帮助\":  显示本说明。\n\n发送\"推荐码\":  生成推荐码。被使用后, 你每天的使用额度可获得300 token 奖励。被推荐人充值可获得33%%的提成。\n\n使用推荐码: 请直接把别人分享给你的推荐码转发给 @%s，充值获得9折优惠。\n\n充值：充值30元，每天使用额度增加5000token。\n\n发送\"额度\"或\"余额\": 查询每天使用额度和当天剩余额度。\n\n充值或任何问题: 请联系微信: mtldswz_03", scheduler.WxMe.Name)
 	output.Reply(to, msg)
 	output.ReplyImg(to, "E:/USB/mtl.jpg")
 }
