@@ -48,10 +48,10 @@ func Scheduler() {
 			gocron.NewAtTimes(
 				// gocron.NewAtTime(12, 0, 0),
 				// gocron.NewAtTime(16, 41, 0),
-				gocron.NewAtTime(18, 6, 0),
+				gocron.NewAtTime(18, 20, 0),
 			),
 		),
-		gocron.NewTask(SmallTalk),
+		gocron.NewTask(SmallTalk,"honey"),
 	)
 	
 	// _, _ = s.NewJob(
