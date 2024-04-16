@@ -10,6 +10,7 @@ import (
 	"jwt/google"
 	"jwt/models"
 	"jwt/output"
+	"encoding/xml"
 	"jwt/scheduler"	
 	"jwt/initializers"
 	"github.com/google/uuid"
@@ -33,12 +34,26 @@ func WxMsg(c *gin.Context){
 	// }
 	
 	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
-	if (body.Type == 1 ){
-		fmt.Println("\n\ncontent: ",body.Content)
-		fmt.Println("from: ",body.FromUser)
-		fmt.Println("to: ",body.ToUser)
-		fmt.Println("type: ",body.Type)
-		fmt.Println("\n\n")
+	if (body.Type == 49 ){
+		// fmt.Println("\n\ncontent: ",body.Content)
+		// fmt.Println("from: ",body.FromUser)
+		// fmt.Println("to: ",body.ToUser)
+		// fmt.Println("type: ",body.Type)
+		// fmt.Println("\n\n")
+
+		re := regexp.MustCompile(`^\w+:`)
+		content:=re.ReplaceAllString(body.Content, "")
+		var msg49 models.Msg49 
+		if err := xml.Unmarshal([]byte(content), &msg49); err != nil {
+			fmt.Println(err)
+			return
+		}
+		// fmt.Println(msg49.Appmsg.Title,"------------------------------",msg49.Appmsg.Refermsg)
+		// go output.Log2file(content)
+		if msg49.Appmsg.Refermsg.Type == 1 {
+			body.Content=fmt.Sprintf("\"%s\", %s", msg49.Appmsg.Refermsg.Content, msg49.Appmsg.Title)
+			body.Type=1
+		}
 	}
 	
 	to:="filehelper"
@@ -69,8 +84,9 @@ func WxMsg(c *gin.Context){
 	}
 
 	if strings.Contains(body.FromUser,"@chatroom") && strings.Contains(body.Content, "@"+scheduler.WxMe.Name){
-		re := regexp.MustCompile(`^(\w+):(\s)@`+scheduler.WxMe.Name+".?")
-		content:=re.ReplaceAllString(body.Content, "")
+		re := regexp.MustCompile(`^\w+:\s@`+scheduler.WxMe.Name+".?")
+		content := re.ReplaceAllString(body.Content, "")
+		content = strings.Replace(content, "@"+scheduler.WxMe.Name, "",-1)
 		if CMDS(content, to, ticket[0]){
 			return
 		}
