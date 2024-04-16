@@ -28,11 +28,26 @@ func WxMsg(c *gin.Context){
 	}
 	
 	// if (body.Type == 10000){
-	//	风险，会触发微信服务器调用 
+	//	群增加新成员,红包、系统消息。风险，会触发微信服务器调用 
 	// 	go scheduler.CRURegister(body.FromUser)
 	// 	return
 	// }
-	
+	// 好友确认
+	if (body.Type == 37 ){
+		fmt.Println("\n\ncontent: ",body.Content)
+		fmt.Println("from: ",body.FromUser)
+		fmt.Println("to: ",body.ToUser)
+		fmt.Println("type: ",body.Type)
+		fmt.Println("\n\n")
+	}
+	// 共享实时位置、文件、转账、链接
+	// if (body.Type == 49 ){
+	// 	fmt.Println("\n\ncontent: ",body.Content)
+	// 	fmt.Println("from: ",body.FromUser)
+	// 	fmt.Println("to: ",body.ToUser)
+	// 	fmt.Println("type: ",body.Type)
+	// 	fmt.Println("\n\n")
+	// }
 	// if (body.Type != 49 && body.Type != 47&& body.Type != 43&& body.Type != 10002){
 	if (body.Type == 49 ){
 		// fmt.Println("\n\ncontent: ",body.Content)
@@ -43,16 +58,16 @@ func WxMsg(c *gin.Context){
 
 		re := regexp.MustCompile(`^\w+:`)
 		content:=re.ReplaceAllString(body.Content, "")
-		var msg49 models.Msg49 
+		var msg49 models.QuoteMsg 
 		if err := xml.Unmarshal([]byte(content), &msg49); err != nil {
 			fmt.Println(err)
 			return
 		}
-		// fmt.Println(msg49.Appmsg.Title,"------------------------------",msg49.Appmsg.Refermsg)
-		// go output.Log2file(content)
 		if msg49.Appmsg.Refermsg.Type == 1 {
 			body.Content=fmt.Sprintf("\"%s\", %s", msg49.Appmsg.Refermsg.Content, msg49.Appmsg.Title)
 			body.Type=1
+		}else{
+			go output.Log2file(content)
 		}
 	}
 	

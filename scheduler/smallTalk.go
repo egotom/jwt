@@ -14,6 +14,10 @@ import (
 )
 
 func SmallTalk(style string){
+	initializers.LoadConfig("config.yaml")
+	if !initializers.Config.EnableSamllTalk{
+		return
+	}
 	prompts:=initializers.Config.Prompts
 	client := &http.Client{Timeout: 5*time.Second}	
 	rs,_ := FetchWxUser()

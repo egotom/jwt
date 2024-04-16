@@ -11,6 +11,10 @@ import (
 )
 
 func Invite(){
+	initializers.LoadConfig("config.yaml")
+	if !initializers.Config.EnableInvite{
+		return
+	}
 	rids:=[]string{"35031914979@chatroom"}
 	Users := []models.User{}
 	initializers.DB.Where("is_active = ?","false").Not("wxid like ?","%@%").Limit(5).Order("updated_at desc").Find(&Users)

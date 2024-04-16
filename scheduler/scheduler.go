@@ -53,17 +53,6 @@ func Scheduler() {
 		),
 		gocron.NewTask(SmallTalk,"honey"),
 	)
-	
-	// _, _ = s.NewJob(
-	// 	gocron.DurationJob(
-	// 		time.Second*3,
-	// 	),
-	// 	gocron.NewTask(
-	// 		func() {
-	// 			fmt.Println("gocron.DurationJob 3s: ",time.Now())
-	// 		},
-	// 	),
-	// )
 
 	_, _ = s.NewJob(
 		gocron.MonthlyJob(1,

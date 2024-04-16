@@ -6,6 +6,8 @@ APIKey:
 GinMode: release
 Port: 8080
 HTTPProxy: 127.0.0.1:1081
+EnableSamllTalk: False
+EnableInvite: True
 Greets: 
   - 你好，我是 Gemini.
 Prompts:

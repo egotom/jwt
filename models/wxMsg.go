@@ -14,7 +14,8 @@ type WxMsg struct{
     CreateTime		int64 	`json:"createTime"`
 }
 
-type Msg49 struct{
+// 49
+type QuoteMsg struct{
     XMLName xml.Name `xml:"msg"`
     Appmsg struct{
         Title   string  `xml:"title"`
