@@ -91,7 +91,7 @@ func CRURegister(roomId string){
 				cru:=models.ChatRoomUser{
 					Wxid:mb,
 					Room:roomId,
-					IsFriend:WIn(wxUsers,mb),
+					IsFriend:WIn(wxUsers, mb),
 				}
 				initializers.DB.Create(&cru)
 				fmt.Printf("\nCRURegister : %s--------%v\n", mb, time.Now())

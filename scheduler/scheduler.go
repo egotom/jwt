@@ -72,7 +72,7 @@ func Scheduler() {
 				gocron.NewAtTime(10, 30, 0),
 			),
 		),
-		gocron.NewTask(Invite,5),
+		gocron.NewTask(Invite),
 	)
 	
 	s.Start()

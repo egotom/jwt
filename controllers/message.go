@@ -99,7 +99,7 @@ func CMDS(Content,to string, ticket int64) bool{
 		var pm = models.Promotion{ID:id}
 		result := initializers.DB.Where("publisher != ?",to).First(&pm, id)
 		if result.RowsAffected == 0{
-			output.Reply(to, "该推荐码无效，请联系推荐者重新生成。")
+			output.Reply(to, "该推荐码无效，或自己生成？请联系推荐者重新生成。")
 			Help(to)
 			return true
 		}

@@ -58,8 +58,8 @@ func SmallTalk(style string){
 				fmt.Println("SmallTalk ", err)
 			}
 			fmt.Printf("\nSamllTalk : %v------------%v\n", string(rb), time.Now())
-			time.Sleep(3*time.Minute)
 		}
+		time.Sleep(5*time.Minute)
 	}
 }
 

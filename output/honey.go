@@ -2,9 +2,11 @@ package output
 
 import (
 	"io"
+	"os"
 	"fmt"
 	"time"
 	"bytes"
+	"bufio"
 	"strings"
 	"net/url"
 	"net/http"
@@ -36,13 +38,38 @@ func Honey(){
 		style=t.Style
 		for _,w := range(t.Words){
 			prompt:=fmt.Sprintf(t.Formart, w)
-			ChatGemini(prompt)
-			time.Sleep(60*time.Second)
+			ChatGemini(prompt,"")
+			time.Sleep(40*time.Second)
 		}
 	}
 }
 
-func ChatGemini(msg string){
+func HoneyQuote(){
+	file, err := os.Open("./t/quote.txt")
+	if err != nil {
+		fmt.Printf("Error when opening file: %s", err)
+		return
+	}
+
+	fileScanner := bufio.NewScanner(file)
+	// read line by line
+	style="goodreads.com 译文"
+	for fileScanner.Scan() {
+		// fmt.Println(fileScanner.Text())
+		origin := fileScanner.Text()
+		prompt:=fmt.Sprintf("%s  翻译成中文。", origin)
+		ChatGemini(prompt, origin)
+		time.Sleep(12*time.Second)
+	}
+	// handle first encountered error while reading
+	if err := fileScanner.Err(); err != nil {
+		fmt.Printf("Error while reading file: %s", err)
+		return
+	}
+	file.Close()
+}
+
+func ChatGemini(msg, origin string){
 	msgs :=[]models.Contents{}
 	msgs = append(msgs, models.Contents{Role: "user", Parts:[]models.Parts{{Text:msg}}})
 	
@@ -50,7 +77,7 @@ func ChatGemini(msg string){
 	m, err := json.Marshal(&rb)
 	if err!=nil{
 		fmt.Println(err)
-		ChatGPT(msg)
+		ChatGPT(msg, origin)
 		return
 	}
 	ugi:=fmt.Sprint("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=", initializers.Config.APIKey["Gemini"])
@@ -58,7 +85,7 @@ func ChatGemini(msg string){
 	r, err := http.NewRequest("POST",ugi, bytes.NewBuffer(m))
 	if err != nil {
 		fmt.Println(err)
-		ChatGPT(msg)
+		ChatGPT(msg, origin)
 		return
 	}
 	r.Header.Add("Content-Type", "application/json")
@@ -75,13 +102,13 @@ func ChatGemini(msg string){
 	res, err := client.Do(r)
 	if err != nil {
 		fmt.Println(err)
-		ChatGPT(msg)
+		ChatGPT(msg, origin)
 		return
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err!=nil{
-		ChatGPT(msg)
+		ChatGPT(msg, origin)
 		return
 	}
 	
@@ -90,14 +117,18 @@ func ChatGemini(msg string){
 	if err==nil && len(answer.Candidates)>0 && len(answer.Candidates[0].Content.Parts) >0{
 		res:=strings.Replace(answer.Candidates[0].Content.Parts[0].Text,"*","",-1)
 		// Log2file(res)
-		logHoney(msg, res)
+		content := res
+		if origin != "" {
+			content = fmt.Sprintf("%s \n %s",origin, res)
+		}
+		logHoney(msg,  content)
 
 	}else{
-		ChatGPT(msg)
+		ChatGPT(msg, origin)
 	}
 }
 
-func ChatGPT(msg string){
+func ChatGPT(msg, origin string){
 	msgs :=[]models.OpenaiMsg{}
 	msgs = append(msgs, models.OpenaiMsg{ Role: "user", Content: msg})
 
@@ -141,7 +172,11 @@ func ChatGPT(msg string){
 	if err==nil && len(answer.Choices)>0 {
 		text := answer.Choices[0].Message.Content
 		// Log2file(text)
-		logHoney(msg,text)
+		content := text
+		if origin != "" {
+			content = fmt.Sprintf("%s \n %s",origin, text)
+		}
+		logHoney(msg, content)
 	}
 }
 
@@ -151,3 +186,4 @@ func logHoney(p, c string){
 	honey = models.Honey{Style:style, Prompt:p, Commit:c}
 	initializers.DB.Create(&honey)
 }
+
